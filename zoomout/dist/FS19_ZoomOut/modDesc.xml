@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<modDesc descVersion="40">
+	<author>omni-trash</author>
+    <version>1.20.1.19</version>
+    <title>
+        <de>ZoomOut</de>
+    </title>
+    <description>
+	<de><![CDATA[Setzt den Kamerabstand beim erstmaligen Einsteigen in ein Fahrzeug.]]></de>
+    </description>
+	<!--
+	icon from  : https://icon-icons.com/de/pack/780-Free-Vector-Emoji/1465
+	created by : Vincent Le Moign
+	license    : https://creativecommons.org/licenses/by/4.0/
+	-->
+    <iconFilename>mod.png</iconFilename>
+    <multiplayer supported="true"/>
+	<extraSourceFiles>	
+		<sourceFile filename="mod.lua" /> 
+	</extraSourceFiles>
+</modDesc>
