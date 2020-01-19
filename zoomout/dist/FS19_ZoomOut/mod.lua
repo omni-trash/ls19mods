@@ -7,11 +7,7 @@ local mod = {
 	name = "FS19_ZoomOut",
 	version = "1.20.1.19",
 	dir = g_currentModDirectory,
-	modName = g_currentModName,
-	data = {
-		-- for internal use
-		isCameraZoomedOut = false
-	}
+	modName = g_currentModName
 };
 
 -- when the mission starts
@@ -21,11 +17,6 @@ end
 
 -- auto zoom first time after mission starts
 function mod:enableCameraZoomOut()
-	if self.data.isCameraZoomedOut == true then
-		-- done
-		return;
-	end
-
 	local zoomedCameras = {};
 	local guiTopDownCamera = g_currentMission.guiTopDownCamera;
 
@@ -46,8 +37,6 @@ function mod:enableCameraZoomOut()
 			end
 		end
 	end, guiTopDownCamera.setControlledVehicle);
-
-	self.data.isCameraZoomOutEnabled = true;
 end
 
 -- we dont attach the mod directly, we use a wrapper
