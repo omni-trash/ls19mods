@@ -6,4 +6,4 @@ Der Reitmeister hilft dir beim Ausreiten deiner Pferde. Wenn du genug Zeit hast,
 
 Und für die Neulinge unter euch, bei 100% hat dein Pferd einen Wert von 50.000 EUR, mehr geht nicht. Dann ist es Zeit für den Verkauf, oder ihr behaltet es einfach so zum Spaß.
 
-Weitere Informationen zum Einbinden der Script-Mods unter [ls19mods](../readme.md).
+Weitere Informationen zum Einbinden der Script-Mods unter [ls19mods](./../readme.md).
