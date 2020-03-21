@@ -5,7 +5,7 @@
 
 local mod = {
 	name = "FS19_Stallbursche",
-	version = "1.20.1.19",
+	version = "1.20.3.21",
 	dir = g_currentModDirectory,
 	modName = g_currentModName,
 	data = {
@@ -30,6 +30,10 @@ local function ruleOverflow80(p)
 	return p > 80;
 end
 
+local function ruleOverflow70(p)
+	return p > 70;
+end
+
 -- rules for known modules
 -- we show the notification on overflow or underflow.
 local rules = {};
@@ -40,11 +44,43 @@ rules["liquidManure"] 	= ruleOverflow80;
 rules["water"] 			= ruleUnderflow90;
 rules["milk"] 			= ruleOverflow80;
 rules["cleanliness"] 	= ruleUnderflow90; -- cleanliness from foodSpillage
-rules["pallets"] 		= ruleOverflow80;  -- pallets (egg, wool), note: dont work
---animals, unused
+rules["pallets"] 		= ruleOverflow70;  -- num of pallets (egg, wool)
+rules["animals"] 		= ruleOverflow80;  -- num of animals in the husbandry
+rules["productivity"]   = ruleUnderflow90; -- from husbandry
 
 local function trace(message)
 	print(string.format("@%s [%s]: %s", mod.name, getDate("%H:%M:%S"), message));
+end
+
+-- for internal use, see DebugUtil.printTableRecursively
+local function printTable(name, inputTable, deep, refs)
+	if (type(inputTable) ~= "table") then
+		trace(name .. " [" .. type(inputTable) .. "] is not a table: " .. tostring(inputTable));
+		return;
+	end
+
+	refs = refs or {};
+
+	if refs[tostring(inputTable)] ~= nil then
+		trace(name .. "[" .. tostring(inputTable) .. "]: REFERENCE: " .. refs[tostring(inputTable)]);
+		return;
+	end
+
+	refs[tostring(inputTable)] = name;
+
+	local mt = getmetatable(inputTable);
+
+	if type(mt) == "table" then
+		printTable(name .. "_mt", mt, deep, refs);
+	end
+
+	for k, v in pairs(inputTable) do
+		trace(name .. "." .. tostring(k) .. " [" .. type(v) .. "]: " .. tostring(v));
+
+		if (((deep or 0) > 0) and (type(v) == "table")) then
+			printTable(name .. "." .. tostring(k), v, deep - 1, refs);
+		end		
+	end
 end
 
 -- hope farmId works in MP
@@ -101,7 +137,7 @@ end
 
 function mod:getFillInfoTitle(info)
 	-- "Protein"
-	return (info.foodGroup or info.fillType).title;
+	return (info.foodGroup or info.fillType).title or "no title";
 end
 
 function mod:getFillInfoTitleWithDetails(info)
@@ -168,37 +204,7 @@ function mod:getFillInfo(data)
 			};
 
 			table.insert(items, item);
-			table.insert(messages, percentageMessage);
-		elseif data.moduleName == "pallets" then
-			-- wrong ... superClass() ?
-			-- no capacity for eggs or wool, they are in a box or pallet
-
---[[ TODO: how many pallets can be dropped?
-			-- "67"
-			local percentage = math.floor(#data.husbandry.pickObjects);
-			-- "Wolle"
-			local title = self:getFillInfoTitle(info);
-			-- "67% Wolle"
-			local percentageMessage = percentage .. "% " .. title;
-			-- "67% Wolle"
-			local percentageMessageWithDetails = percentage .. "% " .. self:getFillInfoTitleWithDetails(info);
-
-			-- that's the item we want to check
-			local item = {
-				-- needed to have the correct rule
-				moduleName = data.moduleName,
-				-- needed to check the rule
-				percentage = percentage,
-				-- "Schafweide 67% Wolle"
-				message = hotspot .. " " .. percentageMessageWithDetails,
-				-- unique key to indentify
-				-- "Animals_SHEEP_pallets_Wolle", "Animals_CHICKEN_pallets_Eier" etc.
-				key = data.husbandry.saveId .. "_" .. data.moduleName .. "_" .. title,
-			};
-
-			table.insert(items, item);
-			table.insert(messages, percentageMessage);
-]]
+			table.insert(messages, percentageMessage);		
 		end
 	end
 
@@ -215,14 +221,192 @@ function mod:getFillInfo(data)
 	end
 end
 
+-- special getFillInfo, animal module dont have a fill level, so we check the num of animals in the husbandry with a reproduction rate
+function mod:getFillInfoFromAnimalModule(animalModule)
+	local husbandry = animalModule.owner;
+	local reproduction = false;
+	local typedAnimals = animalModule:getTypedAnimals();
+
+	-- can have different animals (color, gender)
+	for fillTypeIndex, _ in pairs(typedAnimals) do
+		if (husbandry:getReproductionTimePerDay(fillTypeIndex) or 0) > 0 then
+			reproduction = true;
+			break;
+		end
+	end
+
+	if (reproduction == true) then
+		local key = string.format("statistic_%sOwned", string.lower(animalModule:getAnimalType()));
+		local title = string.format("%s (%d/%d)", tostring(g_i18n.texts[key]), husbandry:getNumOfAnimals(), husbandry:getMaxNumAnimals());
+		trace(title);
+
+		return self:getFillInfo({
+			husbandry = husbandry,
+			moduleName = animalModule.moduleName,
+			filltypeInfo = {{fillLevel = husbandry:getNumOfAnimals(), capacity = husbandry:getMaxNumAnimals(), fillType = {title = title}}}
+		})
+	end
+end
+
+-- special getFillInfo, take cleanliness from food spillage module
+function mod:getFillInfoFromFoodSpillageModule(foodSpillageModule)
+	local husbandry = foodSpillageModule.owner;
+	-- same as husbandry:getFoodSpillageFactor()
+	local foodSpillageFactor = foodSpillageModule:getSpillageFactor();
+
+	if foodSpillageFactor ~= nil then
+		return self:getFillInfo({
+			husbandry = husbandry,
+			moduleName = "cleanliness",
+			filltypeInfo = {{fillLevel = foodSpillageFactor, capacity = 1, fillType = {title = tostring(g_i18n.texts.statistic_cleanliness)}}}
+		})
+	end
+end
+
+--[[
+coordinate system, (0,0,0) is top left of map
+
+              y+  (N)
+              |   z-
+              |  /
+              | /
+              |/
+(W) x- -------0------- x+ (E)
+             /|
+            / |
+           /  |
+          z+  |
+        (S)   y-
+]]
+
+-- special getFillInfo, pallet module dont have a fill level, so we take the free space of the spawner area
+function mod:getFillInfoFromPalletModule(palletModule)
+	local husbandry = palletModule.owner;
+
+	-- the pallet module has the size of the provided pallet and the size of the pallet spawner area.
+	-- so we use a physics collision detection for each possible pallet position in the spawner area and
+	-- if we found an object, then we have to check that the object is a pallet or not. thats the base idea,
+	-- and that is what giants does in the HusbandryModulePallets. so we know how many pallets are currently
+	-- in the area and how many pallets can be in the area. thats enough, we dont read the fill state of each pallet.
+	-- see: https://gdn.giants-software.com/documentation_scripting_fs19.php?version=script&category=84&class=10077
+
+	local rotationX, rotationY, rotationZ = getWorldRotation(palletModule.palletSpawnerNode); 
+
+	-- pallet size (note: pallet/box is a vehicle)
+	local width = palletModule.sizeWidth;
+	local height = palletModule.sizeLength;
+
+	-- why? +25%
+	height = height * 1.25;
+
+	-- how many pallets can be in the area (note: these values dont reflect the real behaviour)
+	local numMaxPalletsWidth = math.floor(palletModule.palletSpawnerAreaSizeX / width);
+	local numMaxPalletsHeight = math.floor(palletModule.palletSpawnerAreaSizeZ / height);
+	local numMaxPallets = numMaxPalletsWidth * numMaxPalletsHeight;
+
+	-- half size
+	local widthHalf = width * 0.5;
+	local heightHalf = height * 0.5;
+
+	-- stateful resolver to detect pallets
+	local palletsResolver = {
+		numPallets = 0,
+		numPalletsOnGround = 0,
+		transformIds = {},
+		palletSpawnerCollisionTestCallback = function(self, transformId)
+			if (self.transformIds[transformId] == nil) then
+				local object = g_currentMission:getNodeObject(transformId);
+				local isPallet = (object ~= nil and object.isa ~= nil and object:isa(Vehicle) and object.typeName == "pallet");
+
+				if (isPallet == true) then
+					self.numPallets = self.numPallets + 1;
+
+					local x, y, z = localToLocal(object.rootNode, palletModule.palletSpawnerNode, 0, 0, 0);
+
+					if not (y > 0) then
+						-- means the pallet is not stacked
+						self.numPalletsOnGround = self.numPalletsOnGround + 1;
+					end
+				end
+
+				-- remember is counted
+				self.transformIds[transformId] = transformId;
+			end
+
+			return true;
+		end
+	};
+
+	local overlapFunctionCallback = "palletSpawnerCollisionTestCallback";
+	local targetObject = palletsResolver;
+	local collisionMask = nil;
+	local includeDynamics = true;
+	local includeStatics = false;
+	local exactTest = true;
+
+	-- for each possible pallet position (raster) in the spawner area
+	for dx = widthHalf, palletModule.palletSpawnerAreaSizeX - widthHalf, width do 
+		 for dz = heightHalf, palletModule.palletSpawnerAreaSizeZ - heightHalf, height do
+			local x, y, z = localToWorld(palletModule.palletSpawnerNode, dx, 0, dz);
+			local centerX = x;
+			local centerY = y - 5;
+			local centerZ = z;
+			local extentX = widthHalf;
+			local extentY = 10;
+			local extentZ = heightHalf;
+
+			overlapBox(centerX, centerY, centerZ, rotationX, rotationY, rotationZ, extentX, extentY, extentZ, overlapFunctionCallback, targetObject, collisionMask, includeDynamics, includeStatics, exactTest);
+		 end
+	end
+
+	if numMaxPallets > 0 then
+		local title = string.format("%s (%d/%d)", tostring(g_i18n.texts.category_pallets), targetObject.numPalletsOnGround, numMaxPallets);
+		
+		if (targetObject.numPalletsOnGround ~= targetObject.numPallets) then
+			title = string.format("%s [%s: %d]", title, tostring(g_i18n.texts.ui_total), targetObject.numPallets);
+		end
+
+		trace(title);
+
+		return self:getFillInfo({
+			husbandry = husbandry,
+			moduleName = palletModule.moduleName,
+			filltypeInfo = {{fillLevel = targetObject.numPalletsOnGround, capacity = numMaxPallets, fillType = {title = title}}}
+		});
+	end
+end
+
 -- this function returns the fill level info from a module, if available. there are modules for straw, water, milk and so on.
 -- the module system is new in FS19. each husbandry can have different modules. chickens dont have milk, so they dont have a milk module.
--- the original getFilltypeInfos is wrapped in a custom data table, so we can use it also for cleanliness.
+-- the original getFilltypeInfos is wrapped in a custom data table, so we can use it also for cleanliness, pallets and so on.
 function mod:getFillInfoFromModule(_module)
-	local fillinfo = self:getFillInfo({
-		husbandry = _module.owner,
-		moduleName = _module.moduleName,
-		filltypeInfo = _module:getFilltypeInfos()});
+	local husbandry = _module.owner;
+	local fillinfo = nil;
+
+	if (type(_module.getFilltypeInfos) == "function") then
+		fillinfo = self:getFillInfo({
+			husbandry = husbandry,
+			moduleName = _module.moduleName,
+			filltypeInfo = _module:getFilltypeInfos()});
+	end
+
+	-- some modules dont have getFilltypeInfos/capacity, so we use a special handling to get some useful informations
+	if fillinfo == nil then
+		if (_module.moduleName == "animals") then
+			-- check num of animals in husbandry
+			fillinfo = self:getFillInfoFromAnimalModule(_module);
+		end
+
+		if (_module.moduleName == "foodSpillage") then
+			-- cleanliness (not a module, we have to take the values from folldSpillage module)
+			fillinfo = self:getFillInfoFromFoodSpillageModule(_module);
+		end
+
+		if (_module.moduleName == "pallets") then
+			-- get free spawner space
+			fillinfo = self:getFillInfoFromPalletModule(_module);
+		end
+	end
 
 	return fillinfo;
 end
@@ -311,24 +495,20 @@ end
 -- this function takes all fill levels from the husbandry to display ingame notifications.
 function mod:collectFromModules(husbandry)
 	for _, _module in pairs(husbandry.modulesByName) do
-		if type(_module.getFilltypeInfos) == "function" then
-			local fillinfo = self:getFillInfoFromModule(_module);
-			self:addFillInfoItems(fillinfo);
-		end
-	end
-
-	-- cleanliness (not a module, we have to take the values from folldSpillage module)
-	local foodSpillageFactor = husbandry:getFoodSpillageFactor();
-
-	if foodSpillageFactor ~= nil then
-		local fillinfo = self:getFillInfo({
-			husbandry = husbandry,
-			moduleName = "cleanliness",
-			filltypeInfo = {{fillLevel = foodSpillageFactor, capacity = 1, fillType = {title = g_i18n.texts.statistic_cleanliness}}}
-		})
-
+		local fillinfo = self:getFillInfoFromModule(_module);
 		self:addFillInfoItems(fillinfo);
 	end
+
+	-- there is no productivity module, take the values from the husbandry itself
+	local productivity = husbandry:getGlobalProductionFactor() or 0;
+
+	local fillinfo = self:getFillInfo({
+		husbandry = husbandry,
+		moduleName = "productivity",
+		filltypeInfo = {{fillLevel = productivity, capacity = 1, fillType = {title = tostring(g_i18n.texts.statistic_productivity)}}}
+	})
+
+	self:addFillInfoItems(fillinfo);
 end
 
 -- collect data from husbandries
