@@ -5,7 +5,7 @@
 
 local mod = {
 	name = "FS19_Stallbursche",
-	version = "1.20.3.21",
+	version = "1.20.3.31",
 	dir = g_currentModDirectory,
 	modName = g_currentModName,
 	data = {
@@ -186,9 +186,9 @@ function mod:getFillInfo(data)
 			-- "Protein"
 			local title = self:getFillInfoTitle(info);
 			-- "84% Protein"
-			local percentageMessage = percentage .. "% " .. title;
+			local percentageMessage = string.format("%d%% %s", percentage, title);
 			-- "84% Protein (Sojabohnen, Raps, Sonnenblumen)"
-			local percentageMessageWithDetails = percentage .. "% " .. self:getFillInfoTitleWithDetails(info);
+			local percentageMessageWithDetails = string.format("%d%% %s", percentage, self:getFillInfoTitleWithDetails(info));
 
 			-- that's the item we want to check
 			local item = {
@@ -197,13 +197,15 @@ function mod:getFillInfo(data)
 				-- needed to check the rule (note: we dont use FOOD_CONSUME_TYPE_PARALLEL or FOOD_CONSUME_TYPE_SERIAL)
 				percentage = percentage,
 				-- "Schweinegehege 84% Protein (Sojabohnen, Raps, Sonnenblumen)"
-				message = hotspot .. " " .. percentageMessageWithDetails,
+				message = string.format("%s %s", hotspot, percentageMessageWithDetails),
 				-- unique key to indentify
 				-- "Animals_PIG_food_Protein", "Animals_PIG_food_Basisfutter" etc.
-				key = data.husbandry.saveId .. "_" .. data.moduleName .. "_" .. title,
+				key = string.format("%s_%s_%s", tostring(data.husbandry.saveId), data.moduleName, (info.key or title)),
 			};
 
+			-- notifications
 			table.insert(items, item);
+			-- on screen
 			table.insert(messages, percentageMessage);		
 		end
 	end
@@ -214,7 +216,7 @@ function mod:getFillInfo(data)
 			items = items,
 			-- use for top message on screen (self.data.screenMessage)
 			-- "Schweinegehege 86% Basisfutter, 84% Getreide, 84% Protein, 83% Wurzelfrüchte"
-			message = hotspot .. " " .. table.concat(messages, ", ")
+			message = string.format("%s %s", hotspot, table.concat(messages, ", "))
 		};
 
 		return fillinfo;
@@ -238,12 +240,11 @@ function mod:getFillInfoFromAnimalModule(animalModule)
 	if (reproduction == true) then
 		local key = string.format("statistic_%sOwned", string.lower(animalModule:getAnimalType()));
 		local title = string.format("%s (%d/%d)", tostring(g_i18n.texts[key]), husbandry:getNumOfAnimals(), husbandry:getMaxNumAnimals());
-		trace(title);
 
 		return self:getFillInfo({
 			husbandry = husbandry,
 			moduleName = animalModule.moduleName,
-			filltypeInfo = {{fillLevel = husbandry:getNumOfAnimals(), capacity = husbandry:getMaxNumAnimals(), fillType = {title = title}}}
+			filltypeInfo = {{fillLevel = husbandry:getNumOfAnimals(), capacity = husbandry:getMaxNumAnimals(), key = "animals", fillType = {title = title}}}
 		})
 	end
 end
@@ -258,7 +259,7 @@ function mod:getFillInfoFromFoodSpillageModule(foodSpillageModule)
 		return self:getFillInfo({
 			husbandry = husbandry,
 			moduleName = "cleanliness",
-			filltypeInfo = {{fillLevel = foodSpillageFactor, capacity = 1, fillType = {title = tostring(g_i18n.texts.statistic_cleanliness)}}}
+			filltypeInfo = {{fillLevel = foodSpillageFactor, capacity = 1, key = "cleanliness", fillType = {title = tostring(g_i18n.texts.statistic_cleanliness)}}}
 		})
 	end
 end
@@ -287,12 +288,12 @@ function mod:getFillInfoFromPalletModule(palletModule)
 	-- so we use a physics collision detection for each possible pallet position in the spawner area and
 	-- if we found an object, then we have to check that the object is a pallet or not. thats the base idea,
 	-- and that is what giants does in the HusbandryModulePallets. so we know how many pallets are currently
-	-- in the area and how many pallets can be in the area. thats enough, we dont read the fill state of each pallet.
+	-- in the area and how many pallets can be in the area. thats enough.
 	-- see: https://gdn.giants-software.com/documentation_scripting_fs19.php?version=script&category=84&class=10077
 
 	local rotationX, rotationY, rotationZ = getWorldRotation(palletModule.palletSpawnerNode); 
 
-	-- pallet size (note: pallet/box is a vehicle)
+	-- pallet size (note: pallet/box is a specialized vehicle -> FillUnit)
 	local width = palletModule.sizeWidth;
 	local height = palletModule.sizeLength;
 
@@ -312,6 +313,8 @@ function mod:getFillInfoFromPalletModule(palletModule)
 	local palletsResolver = {
 		numPallets = 0,
 		numPalletsOnGround = 0,
+		sumFillLevel = 0,
+		fillTypeTitle = "n/a",
 		transformIds = {},
 		palletSpawnerCollisionTestCallback = function(self, transformId)
 			if (self.transformIds[transformId] == nil) then
@@ -323,9 +326,18 @@ function mod:getFillInfoFromPalletModule(palletModule)
 
 					local x, y, z = localToLocal(object.rootNode, palletModule.palletSpawnerNode, 0, 0, 0);
 
-					if not (y > 0) then
+					if (y < 0.001) then
 						-- means the pallet is not stacked
 						self.numPalletsOnGround = self.numPalletsOnGround + 1;
+					end
+
+					-- fill level and fill type
+					local fillTypeIndex = object:getFillUnitFillType(1);
+					local fillType = g_fillTypeManager:getFillTypeByIndex(fillTypeIndex);
+
+					if (fillType ~= nil) then
+						self.sumFillLevel = self.sumFillLevel + (object:getFillUnitFillLevel(1) or 0);
+						self.fillTypeTitle = fillType.title;
 					end
 				end
 
@@ -360,18 +372,21 @@ function mod:getFillInfoFromPalletModule(palletModule)
 	end
 
 	if numMaxPallets > 0 then
+		-- "Paletten (2/4)"
 		local title = string.format("%s (%d/%d)", tostring(g_i18n.texts.category_pallets), targetObject.numPalletsOnGround, numMaxPallets);
-		
+
 		if (targetObject.numPalletsOnGround ~= targetObject.numPallets) then
+			-- "Paletten (2/4) [Gesamt: 7]"
 			title = string.format("%s [%s: %d]", title, tostring(g_i18n.texts.ui_total), targetObject.numPallets);
 		end
 
-		trace(title);
+		-- "Paletten (2/4) [Gesamt: 7] 1524 Wolle"
+		title = string.format("%s %d %s", title, math.floor(targetObject.sumFillLevel), targetObject.fillTypeTitle);
 
 		return self:getFillInfo({
 			husbandry = husbandry,
 			moduleName = palletModule.moduleName,
-			filltypeInfo = {{fillLevel = targetObject.numPalletsOnGround, capacity = numMaxPallets, fillType = {title = title}}}
+			filltypeInfo = {{fillLevel = targetObject.numPalletsOnGround, capacity = numMaxPallets, key = "pallets", fillType = {title = title}}}
 		});
 	end
 end
@@ -505,7 +520,7 @@ function mod:collectFromModules(husbandry)
 	local fillinfo = self:getFillInfo({
 		husbandry = husbandry,
 		moduleName = "productivity",
-		filltypeInfo = {{fillLevel = productivity, capacity = 1, fillType = {title = tostring(g_i18n.texts.statistic_productivity)}}}
+		filltypeInfo = {{fillLevel = productivity, capacity = 1, key = "productivity", fillType = {title = tostring(g_i18n.texts.statistic_productivity)}}}
 	})
 
 	self:addFillInfoItems(fillinfo);
