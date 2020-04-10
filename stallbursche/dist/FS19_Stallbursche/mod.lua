@@ -5,20 +5,23 @@
 
 local mod = {
 	name = "FS19_Stallbursche",
-	version = "1.20.3.31",
+	version = "1.20.4.10",
 	dir = g_currentModDirectory,
 	modName = g_currentModName,
 	data = {
 		-- for ingame notifications
 		timerId = 0,
 		timerInterval = 0,
-		alerts = 0,
+		lastAlertTime = 0,
+		refreshInterval = 15 * 60 * 1000,
+		alerterState = {},
 		fillInfoItems = {},
 
 		-- for top message on screen
 		observedModules = {},
 		screenMessage = "",
-		lastUpdateTime = 0
+		messagesTable = {},
+		expiration = 0
 	}
 };
 
@@ -37,15 +40,15 @@ end
 -- rules for known modules
 -- we show the notification on overflow or underflow.
 local rules = {};
-rules["food"] 			= ruleUnderflow90;
-rules["straw"] 			= ruleUnderflow90;
-rules["manure"] 		= ruleOverflow80;
-rules["liquidManure"] 	= ruleOverflow80;
-rules["water"] 			= ruleUnderflow90;
-rules["milk"] 			= ruleOverflow80;
-rules["cleanliness"] 	= ruleUnderflow90; -- cleanliness from foodSpillage
-rules["pallets"] 		= ruleOverflow70;  -- num of pallets (egg, wool)
-rules["animals"] 		= ruleOverflow80;  -- num of animals in the husbandry
+rules["food"]           = ruleUnderflow90;
+rules["straw"]          = ruleUnderflow90;
+rules["manure"]         = ruleOverflow80;
+rules["liquidManure"]   = ruleOverflow80;
+rules["water"]          = ruleUnderflow90;
+rules["milk"]           = ruleOverflow80;
+rules["cleanliness"]    = ruleUnderflow90; -- cleanliness from foodSpillage
+rules["pallets"]        = ruleOverflow70;  -- num of pallets (egg, wool)
+rules["animals"]        = ruleOverflow80;  -- num of animals in the husbandry
 rules["productivity"]   = ruleUnderflow90; -- from husbandry
 
 local function trace(message)
@@ -115,15 +118,21 @@ function mod:onTimer()
 	self:displayAlerts();
 
 	-- every 15min in user time (not ingame time)
-	self:updateTimerInterval(15 * 60 * 1000);
+	self:updateTimerInterval(self.data.refreshInterval);
 	setTimerTime(self.data.timerId, self.data.timerInterval);
 	return true;
 end
 
 -- draw on game loop (each frame)
 function mod:draw()
-	if ((self.data.lastUpdateTime + 5000) < g_time) then
-		-- "fadeOut"
+	-- dont show the message if outdated
+	if (self.data.expiration < g_time) then
+		if (self.data.screenMessage ~= "") then
+			-- reset
+			self.data.screenMessage = "";
+			self.data.messagesTable = {};
+		end
+
 		return;
 	end
 
@@ -177,6 +186,9 @@ function mod:getFillInfo(data)
 	local messages = {};
 	local hotspot = data.husbandry.mapHotspots[1].fullViewName;
 
+	-- data origin, example "Animals_PIG_food"
+	local source = string.format("%s_%s", tostring(data.husbandry.saveId), data.moduleName);
+
 	for _, info in pairs(data.filltypeInfo) do
 		if (info.capacity > 0) then
 			-- there is a builtin storage of whatever
@@ -200,7 +212,7 @@ function mod:getFillInfo(data)
 				message = string.format("%s %s", hotspot, percentageMessageWithDetails),
 				-- unique key to indentify
 				-- "Animals_PIG_food_Protein", "Animals_PIG_food_Basisfutter" etc.
-				key = string.format("%s_%s_%s", tostring(data.husbandry.saveId), data.moduleName, (info.key or title)),
+				key = string.format("%s_%s", source, tostring(info.key or title)),
 			};
 
 			-- notifications
@@ -212,6 +224,8 @@ function mod:getFillInfo(data)
 
 	if #items > 0 then
 		local fillinfo = {
+			-- data origin
+			source = source,
 			-- use for ingame notifications (self.data.fillInfoItems)
 			items = items,
 			-- use for top message on screen (self.data.screenMessage)
@@ -381,7 +395,7 @@ function mod:getFillInfoFromPalletModule(palletModule)
 		end
 
 		-- "Paletten (2/4) [Gesamt: 7] 1524 Wolle"
-		title = string.format("%s %d %s", title, math.floor(targetObject.sumFillLevel), targetObject.fillTypeTitle);
+		title = string.format("%s %d %s", title, math.floor(targetObject.sumFillLevel), tostring(targetObject.fillTypeTitle));
 
 		return self:getFillInfo({
 			husbandry = husbandry,
@@ -449,12 +463,12 @@ function mod:attachToModule(_module)
 		trace("attachToModule with invalid argument of type " .. type(_module));
 		return;
 	end
-	
+
 	if type(_module.onFillProgressChanged) ~= "function" then
 		-- not supported
 		return;
 	end
-	
+
 	if type(_module.getFilltypeInfos) ~= "function" then
 		-- not supported
 		return;
@@ -464,7 +478,7 @@ function mod:attachToModule(_module)
 	local isModuleIntervalUpdate = false;
 	local _module_onIntervalUpdate = _module.onIntervalUpdate;
 
-	-- we dont want to use the trigger, but we have to know, that the trigger is running
+	-- we have to know, that the trigger is running
 	_module.onIntervalUpdate = function(m, dayInterval)
 		isModuleIntervalUpdate = true;
 		_module_onIntervalUpdate(m, dayInterval);
@@ -475,11 +489,6 @@ function mod:attachToModule(_module)
 	local lastMessage = nil;
 
 	_module.onFillProgressChanged = Utils.appendedFunction(_module.onFillProgressChanged, function(m)
-		if isModuleIntervalUpdate == true then
-			-- we have our own interval
-			return;
-		end
-
 		if m.owner.ownerFarmId == g_currentMission.player.farmId then
 			local fillinfo = self:getFillInfoFromModule(m);
 
@@ -489,7 +498,11 @@ function mod:attachToModule(_module)
 				-- but we want to see significant changes only.
 				if lastMessage ~= nil and lastMessage ~= fillinfo.message then
 					self:addFillInfoItems(fillinfo);
-					self:displayMessage(fillinfo.message);
+
+					-- from hand tool only
+					if isModuleIntervalUpdate == false then
+						self:displayMessage(fillinfo.message, fillinfo.source);
+					end
 				end
 
 				lastMessage = fillinfo.message;
@@ -543,27 +556,42 @@ function mod:displayAlerts()
 			trace("rule for module '" .. item.moduleName .. "' was not found");
 		elseif rule(item.percentage) == true then
 			self:displayAlert(item.key);
+		else
+			-- rule didnt match now
+			self.data.alerterState[item.key] = "discard";
 		end
 	end
 end
 
--- displays the message as ingame notification
+-- displays the message as ingame notification every 30s
 function mod:displayAlert(key)
-	-- show the alerts every 30s
-	local interval = self.data.alerts * 30 * 1000;
+	-- check alerter for the given key is running or not
+	if (self.data.alerterState[key] == "running") then
+		trace(string.format("alerter for key '%s' is already running", key));
+		return;
+	end
 
-	self.data.alerts = self.data.alerts + 1;
+	local nextTime = math.max(g_time, self.data.lastAlertTime + 30000);
+	local interval = nextTime - g_time;
+
+	self.data.lastAlertTime = nextTime;
+	self.data.alerterState[key] = "running";
 
 	addTimer(interval, "onTimer", {
 		onTimer = function()
 			local item = self.data.fillInfoItems[key];
+			local state = self.data.alerterState[key];
 
-			if item ~= nil then
-				trace(item.message);
-				g_currentMission:addIngameNotification(FSBaseMission.INGAME_NOTIFICATION_CRITICAL, item.message);
+			if (state == "running") then
+				if (item ~= nil) then
+					trace(item.message);
+					g_currentMission:addIngameNotification(FSBaseMission.INGAME_NOTIFICATION_CRITICAL, item.message);
+				end
+			else
+				trace(string.format("alerter for key '%s' is outdated", key));
 			end
 
-			self.data.alerts = self.data.alerts - 1;
+			self.data.alerterState[key] = "completed";
 
 			-- https://gdn.giants-software.com/tutorial04.php
 			-- You can remove a timer within the callback function by returning false
@@ -573,9 +601,22 @@ function mod:displayAlert(key)
 end
 
 -- displays the message on top of the screen
-function mod:displayMessage(message)
-	self.data.screenMessage = message;
-	self.data.lastUpdateTime = g_time;
+function mod:displayMessage(message, source)
+	self.data.messagesTable[source] = message;
+
+	-- record to list, values only
+	local temp = {};
+	table.foreach(self.data.messagesTable, function(k, v) table.insert(temp, v) end);
+	table.sort(temp, function(a, b) return #b < #a end);
+
+	-- message to show
+	self.data.screenMessage = table.concat(temp, "\r\n");
+
+	-- we hold the message for 6s (user time).
+	-- ingame time depends on time scale (1, 15, 30, 60, 120 or 5000 if you are going to sleep).
+	-- with a time scale of 120 the next module interval update is after 7.5s (each ~15 ingame minutes).
+	-- with a time scale of 5000 the messages will be combined without resetting the messages.
+	self.data.expiration = g_time + 6000;
 end
 
 -- we dont attach the mod directly, we use a wrapper
