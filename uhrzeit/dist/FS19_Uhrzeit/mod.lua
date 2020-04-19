@@ -12,28 +12,34 @@ local mod = {
 	dir = g_currentModDirectory,
 	modName = g_currentModName,
 	data = {
-		fontSize = HUDElement.TEXT_SIZE.DEFAULT_TEXT * yPixel,
 		fps = 0,
 		drawTime = 0,
 		drawCounter = 0,
-		-- background
-		overlay = nil,
-		padding = {left = 2 * xPixel, top = 2 * yPixel, right = 2 * xPixel, bottom = 2 * yPixel},
-		-- see IngameMap.getBackgroundPosition
-		-- https://gdn.giants-software.com/documentation_scripting_fs19.php?version=script&category=97&class=10216
-		position = {x = g_safeFrameOffsetX, y = g_safeFrameOffsetY},
-		-- the size of our image (2^n)
-		size = {w = 128 * xPixel, h = 128 * yPixel},
-		backgroundImage = g_currentModDirectory .. "overlay.png",
-		backgroundColor =  {0, 0, 0, 0.3}
+		ui = {
+			fontSize = HUDElement.TEXT_SIZE.DEFAULT_TEXT * yPixel,
+			textColor = HUDPopupMessage.COLOR.TEXT,
+			background = {
+				overlay = nil,
+				padding = {left = 2 * xPixel, top = 2 * yPixel, right = 2 * xPixel, bottom = 2 * yPixel},
+				-- see IngameMap.getBackgroundPosition
+				-- https://gdn.giants-software.com/documentation_scripting_fs19.php?version=script&category=97&class=10216
+				position = {x = g_safeFrameOffsetX, y = g_safeFrameOffsetY},
+				-- the size of our image (2^n)
+				size = {w = 128 * xPixel, h = 128 * yPixel},
+				image = g_currentModDirectory .. "overlay.png",
+				color =  {0, 0, 0, 0.3}
+			}
+		},
 	}
 };
 
 -- when the mission starts
 function mod:onStartMission()
 	-- setup overlay (background)
-	self.data.overlay = Overlay:new(self.data.backgroundImage, self.data.position.x, self.data.position.y, self.data.size.w, self.data.size.h);
-	self.data.overlay:setColor(unpack(self.data.backgroundColor));
+	local background = self.data.ui.background;
+
+	background.overlay = Overlay:new(background.image, background.position.x, background.position.y, background.size.w, background.size.h);
+	background.overlay:setColor(unpack(background.color));
 end
 
 -- update FPS
@@ -54,22 +60,30 @@ end
 -- render background
 function mod:renderOverlay(displayString)
 	-- update size
-	self.data.overlay.width = getTextWidth(self.data.fontSize, displayString) + self.data.padding.left + self.data.padding.right;
-	self.data.overlay.height = self.data.fontSize + self.data.padding.top + self.data.padding.bottom;
-	self.data.overlay.offsetY = -self.data.overlay.height;
-	self.data.overlay:render();
+	local background = self.data.ui.background;
+
+	background.size.w = getTextWidth(self.data.ui.fontSize, displayString) + background.padding.left + background.padding.right;
+	background.size.h = self.data.ui.fontSize + background.padding.top + background.padding.bottom;
+
+	-- apply and render
+	background.overlay.width = background.size.w;
+	background.overlay.height = background.size.h;
+	background.overlay.offsetY = -background.overlay.height;
+	background.overlay:render();
 end
 
 -- render text
 function mod:renderText(displayString)
 	setTextBold(false);
-	setTextColor(unpack(HUDPopupMessage.COLOR.TEXT));
+	setTextColor(unpack(self.data.ui.textColor));
 	setTextAlignment(RenderText.ALIGN_LEFT);
 
+	local background = self.data.ui.background;
+
 	-- y is not correct but gives the best result
-	local x = self.data.overlay.x + self.data.padding.left;
-	local y = self.data.overlay.y - self.data.fontSize;
-	renderText(x, y, self.data.fontSize, displayString);
+	local x = background.position.x + background.padding.left;
+	local y = background.position.y - self.data.ui.fontSize;
+	renderText(x, y, self.data.ui.fontSize, displayString);
 end
 
 -- draw on game loop (each frame)
