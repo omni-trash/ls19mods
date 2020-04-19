@@ -2,6 +2,8 @@
 
 Version 1.20.4.10
 
+<img src="./dist/FS19_Stallbursche/mod.png" height="64" width="64" title="Logo" />
+
 Der Stallbursche informiert dich über den Zustand deiner Stallungen. Das bedeutet aktuell die Füllstände von Futter, Wasser, Gülle, Milch und so weiter. Nicht angezeigt werden die Füllstände der Getreide-Silos. Hier geht es primär um die Tierhaltung. Oben rechts erscheinen Meldungen, damit du immer weißt, wie es deinen Tieren so geht. Ansonsten macht der Stallbursche aber nichts, er gibt nur Auskunft. Die Nachrichten kommen immer, also man muss nicht vor dem Stall stehen.
 
 ![Screenshot](./images/screenshot.jpg)
