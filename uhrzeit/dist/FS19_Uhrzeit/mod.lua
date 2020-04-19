@@ -8,7 +8,7 @@ local yPixel = 1 / g_screenHeight;
 
 local mod = {
 	name = "FS19_Uhrzeit",
-	version = "1.20.1.19",
+	version = "1.20.4.19",
 	dir = g_currentModDirectory,
 	modName = g_currentModName,
 	data = {
@@ -38,12 +38,16 @@ end
 
 -- update FPS
 function mod:updateFPS()
-	if (g_time - 1000 > self.data.drawTime) then
+	local diff = g_time - self.data.drawTime;
+	local rate = 1000; -- we calculate the value every 1000 ms
+
+	self.data.drawCounter = self.data.drawCounter + 1;
+
+	if (diff > rate) then
+		-- normalize time diff to 1s
+		self.data.fps = math.floor(self.data.drawCounter / diff * 1000 + 0.5);
 		self.data.drawTime = g_time;
-		self.data.fps = self.data.drawCounter;
-		self.data.drawCounter = 1;
-	else
-		self.data.drawCounter = self.data.drawCounter + 1;
+		self.data.drawCounter = 0;
 	end
 end
 
