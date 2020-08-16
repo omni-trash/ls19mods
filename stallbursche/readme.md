@@ -1,6 +1,6 @@
 # LS19 Stallbursche
 
-Version 1.20.4.10
+Version 1.20.8.16
 
 <img src="./dist/FS19_Stallbursche/mod.png" height="64" width="64" title="Frau, Bauer [Vector Emoji by Vincent Le Moign]" />
 
