@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <modDesc descVersion="40">
 	<author>omni-trash</author>
-    <version>1.20.1.19</version>
+    <version>1.20.8.16</version>
     <title>
         <de>Reitmeister</de>
     </title>
@@ -18,4 +18,9 @@
 	<extraSourceFiles>	
 		<sourceFile filename="mod.lua" /> 
 	</extraSourceFiles>
+	<l10n>
+		<text name="DISPLAYTEXT">
+			<de>'{horse}' wurde von '{player}' um {time} Uhr {minutes} Minuten lang ausgeritten und gebürstet ({fitness}% {fitnessTitle})</de>
+		</text>
+	</l10n>
 </modDesc>

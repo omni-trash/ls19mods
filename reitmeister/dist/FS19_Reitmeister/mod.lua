@@ -5,7 +5,7 @@
 
 local mod = {
 	name = "FS19_Reitmeister",
-	version = "1.20.1.19",
+	version = "1.20.8.16",
 	dir = g_currentModDirectory,
 	modName = g_currentModName,
 	data = {
@@ -22,6 +22,17 @@ local rideTheHorses = {};
 
 local function trace(message)
 	print(string.format("@%s [%s]: %s", mod.name, getDate("%H:%M:%S"), message));
+end
+
+-- formats a string, formatString("{key1} {key2}!", {key1 = "Hello", key2 = "World}") => "Hello World!"
+local function formatString(format, args)
+	local str = tostring(format or "");
+
+	for k, v in pairs(args) do
+		str = string.gsub(str, string.format("{%s}", tostring(k)), tostring(v));
+	end
+
+	return str;
 end
 
 -- hope farmId works in MP
@@ -130,8 +141,16 @@ function mod:minuteChanged()
 				animal.ridingTimer = animal.DAILY_TARGET_RIDING_TIME;
 				animal.ridingScale = 1;
 
-				local text = string.format("'%s' wurde von '%s' um %s Uhr %g Minuten lang ausgeritten und gebürstet", animal.name, g_gameSettings.nickname, timestr, animal.DAILY_TARGET_RIDING_TIME / 60000);
-				self:displayAlert(text);
+				local args = {
+					horse = animal.name,
+					player = g_gameSettings.nickname,
+					time = timestr,
+					minutes = string.format("%g", animal.DAILY_TARGET_RIDING_TIME / 60000),
+					fitness = math.floor(animal.fitnessScale * 100),
+					fitnessTitle = tostring(g_i18n.texts.ui_horseFitness)
+				};
+
+				self:displayAlert(formatString(g_i18n:getText("DISPLAYTEXT"), args));
 				break;
 			end
 		end
