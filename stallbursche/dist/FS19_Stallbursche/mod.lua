@@ -5,7 +5,7 @@
 
 local mod = {
 	name = "FS19_Stallbursche",
-	version = "1.20.4.10",
+	version = "1.20.8.16",
 	dir = g_currentModDirectory,
 	modName = g_currentModName,
 	data = {
@@ -244,8 +244,12 @@ function mod:getFillInfoFromAnimalModule(animalModule)
 	local typedAnimals = animalModule:getTypedAnimals();
 
 	-- can have different animals (color, gender)
-	for fillTypeIndex, _ in pairs(typedAnimals) do
-		if (husbandry:getReproductionTimePerDay(fillTypeIndex) or 0) > 0 then
+	for fillTypeIndex, animal in pairs(typedAnimals) do
+		-- getReproductionTimePerDay dont work if husbandry is full
+		-- if (husbandry:getReproductionTimePerDay(fillTypeIndex) or 0) > 0 then
+
+		-- lets check the animal itself
+		if (animal[1].subType.breeding.birthRatePerDay > 0) then
 			reproduction = true;
 			break;
 		end
