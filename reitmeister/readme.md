@@ -1,6 +1,6 @@
 # LS19 Reitmeister
 
-Version 1.20.8.16
+Version 1.20.8.24
 
 <img src="./dist/FS19_Reitmeister/mod.png" height="64" width="64" title="Pferd, Gesicht [Vector Emoji by Vincent Le Moign]" />
 
