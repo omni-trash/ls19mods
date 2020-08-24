@@ -5,7 +5,7 @@
 
 local mod = {
 	name = "FS19_Reitmeister",
-	version = "1.20.8.16",
+	version = "1.20.8.24",
 	dir = g_currentModDirectory,
 	modName = g_currentModName,
 	data = {
@@ -24,12 +24,13 @@ local function trace(message)
 	print(string.format("@%s [%s]: %s", mod.name, getDate("%H:%M:%S"), message));
 end
 
--- formats a string, formatString("{key1} {key2}!", {key1 = "Hello", key2 = "World}") => "Hello World!"
+-- format the string, formatString("{key1} {key2}!", {key1 = "Hello", key2 = "World}") => "Hello World!"
 local function formatString(format, args)
 	local str = tostring(format or "");
 
 	for k, v in pairs(args) do
-		str = string.gsub(str, string.format("{%s}", tostring(k)), tostring(v));
+		-- gsub is here not usefult with the magic pattern stuff, so we use simple split + join
+		str = table.concat(StringUtil.splitString(string.format("{%s}", tostring(k)), str), tostring(v));
 	end
 
 	return str;
@@ -135,24 +136,37 @@ function mod:minuteChanged()
 
 	-- check the time plan to ride a horse
 	if rideTheHorses[timestr] == true then
+		local horse = nil;
+
+		-- find a horse
 		for _, animal in getAnimalsHorse(g_currentMission.player.farmId) do	
-			-- take a horse without 100%
+			-- horse without 100% riding time
 			if animal.ridingScale < 1 then
-				animal.ridingTimer = animal.DAILY_TARGET_RIDING_TIME;
-				animal.ridingScale = 1;
+				horse = animal;
 
-				local args = {
-					horse = animal.name,
-					player = g_gameSettings.nickname,
-					time = timestr,
-					minutes = string.format("%g", animal.DAILY_TARGET_RIDING_TIME / 60000),
-					fitness = math.floor(animal.fitnessScale * 100),
-					fitnessTitle = tostring(g_i18n.texts.ui_horseFitness)
-				};
-
-				self:displayAlert(formatString(g_i18n:getText("DISPLAYTEXT"), args));
-				break;
+				-- horse without 100% fitness
+				if animal.fitnessScale < 1 then
+					horse = animal;
+					break;
+				end
 			end
+		end
+
+		-- ride the horse
+		if (horse ~= nil) then
+			horse.ridingTimer = horse.DAILY_TARGET_RIDING_TIME;
+			horse.ridingScale = 1;
+
+			local args = {
+				horse = horse.name,
+				player = g_gameSettings.nickname,
+				time = timestr,
+				minutes = string.format("%g", horse.DAILY_TARGET_RIDING_TIME / 60000),
+				fitness = math.floor(horse.fitnessScale * 100),
+				fitnessTitle = tostring(g_i18n.texts.ui_horseFitness)
+			};
+
+			self:displayAlert(formatString(g_i18n:getText("DISPLAYTEXT"), args));
 		end
 	end
 end
