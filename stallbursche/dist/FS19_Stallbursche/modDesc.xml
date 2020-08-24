@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <modDesc descVersion="40">
 	<author>omni-trash</author>
-    <version>1.20.8.16</version>
+    <version>1.20.8.24</version>
     <title>
         <de>Stallbursche</de>
     </title>
@@ -18,4 +18,21 @@
 	<extraSourceFiles>	
 		<sourceFile filename="mod.lua" /> 
 	</extraSourceFiles>
+	<l10n>
+		<text name="INGAME_NOTIFICATION">
+			<de>{hotspot} {detailMessage} [{positionInfo}]</de>
+		</text>
+		<text name="POSITION_INFO">
+			<de>Feld {field}</de>
+			<en>Field {field}</en>
+		</text>
+		<text name="POSITION_INFO_DETAILS">
+			<de>{direction} {degrees}° {distance} m Feld {field}</de>
+			<en>{direction} {degrees}° {distance} m Field {field}</en>
+		</text>
+		<text name="DIRECTIONS">
+			<de>N,NO,O,SO,S,SW,W,NW</de>
+			<en>N,NE,E,SE,S,SW,W,NW</en>
+		</text>
+	</l10n>
 </modDesc>

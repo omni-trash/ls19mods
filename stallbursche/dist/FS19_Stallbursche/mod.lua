@@ -5,7 +5,7 @@
 
 local mod = {
 	name = "FS19_Stallbursche",
-	version = "1.20.8.16",
+	version = "1.20.8.24",
 	dir = g_currentModDirectory,
 	modName = g_currentModName,
 	data = {
@@ -53,6 +53,18 @@ rules["productivity"]   = ruleUnderflow90; -- from husbandry
 
 local function trace(message)
 	print(string.format("@%s [%s]: %s", mod.name, getDate("%H:%M:%S"), message));
+end
+
+-- format the string, formatString("{key1} {key2}!", {key1 = "Hello", key2 = "World}") => "Hello World!"
+local function formatString(format, args)
+	local str = tostring(format or "");
+
+	for k, v in pairs(args) do
+		-- gsub is here not usefult with the magic pattern stuff, so we use simple split + join
+		str = table.concat(StringUtil.splitString(string.format("{%s}", tostring(k)), str), tostring(v));
+	end
+
+	return str;
 end
 
 -- for internal use, see DebugUtil.printTableRecursively
@@ -184,10 +196,11 @@ function mod:getFillInfo(data)
 
 	local items = {};
 	local messages = {};
-	local hotspot = data.husbandry.mapHotspots[1].fullViewName;
+	local place = data.husbandry.mapHotspots[1];
+	local hotspot = place.fullViewName;
 
-	-- data origin, example "Animals_PIG_food"
-	local source = string.format("%s_%s", tostring(data.husbandry.saveId), data.moduleName);
+	-- data origin, example "Animals_PIG_food_<id>"
+	local source = string.format("%s_%s_%s", tostring(data.husbandry.saveId), data.moduleName, tostring(data.husbandry.id));
 
 	for _, info in pairs(data.filltypeInfo) do
 		if (info.capacity > 0) then
@@ -206,13 +219,23 @@ function mod:getFillInfo(data)
 			local item = {
 				-- needed to have the correct rule
 				moduleName = data.moduleName,
+
 				-- needed to check the rule (note: we dont use FOOD_CONSUME_TYPE_PARALLEL or FOOD_CONSUME_TYPE_SERIAL)
 				percentage = percentage,
+
 				-- "Schweinegehege 84% Protein (Sojabohnen, Raps, Sonnenblumen)"
-				message = string.format("%s %s", hotspot, percentageMessageWithDetails),
+				-- old: message = string.format("%s %s", hotspot, percentageMessageWithDetails),
+				-- new: message = formatString("{hotspot} {detailMessage} [{positionInfo}]", { hotspot = hotspot, detailMessage = percentageMessageWithDetails}),
+				message = formatString(g_i18n:getText("INGAME_NOTIFICATION"), { hotspot = hotspot, detailMessage = percentageMessageWithDetails}),
+
 				-- unique key to indentify
-				-- "Animals_PIG_food_Protein", "Animals_PIG_food_Basisfutter" etc.
+				-- "Animals_PIG_food_<id>_Protein", "Animals_PIG_food_Basisfutter" etc.
 				key = string.format("%s_%s", source, tostring(info.key or title)),
+
+				-- remember the hotspot position and farmlandId (for later use)
+				hotspotPositionX = place.xMapPos,
+				hotspotPositionZ = place.zMapPos,
+				farmlandId = data.husbandry.farmlandId
 			};
 
 			-- notifications
@@ -567,6 +590,89 @@ function mod:displayAlerts()
 	end
 end
 
+-- returns the field of the farmland, or nil
+local function getFieldByFarmlandId(farmlandId)
+	for _, field in pairs(g_fieldManager:getFields()) do
+		if (field.farmland.id == farmlandId) then
+			return field;
+		end
+	end
+end
+
+-- extra position infos for ingame notifications
+local function getPositionInfo(hotspotPositionX, hotspotPositionZ, farmlandId)
+	-- positions are in meters from center of the map, so negative x-values means
+	-- that u are left of the center, and negative y-values means u are upper the center.
+	-- the map size are on g_currentMission.mapWidth and g_currentMission.mapHeight and
+	-- they are positive, so 2048 means 2048 meters.
+
+	--[[
+	= size (in meters) =
+
+	0,0           w,0
+	 +-------------+
+	 |             |
+	 |             |
+	 |      + center (w/2, h/2)
+	 |             |
+	 |             |
+	 +-------------+
+	0,h           w,h
+
+	w = mapWidth, h = mapHeight
+
+
+	= positions (also in meters) =
+
+				N
+			   -y
+				|
+				|
+				|
+	W  -x ------+------- +x E
+				| 0,0 center
+				|
+				|
+			   +y
+				S
+
+	note:
+	for the unit circle the y-axis is positive on upper and negative on lower.
+	we have to know that for the algorithm like atan2.
+	]]
+
+	-- ok thats yourself
+	local player = g_currentMission.player;
+
+	-- when the player is inside a vehicle, we have to use the position of that vehicle.
+	-- in that case the player position is not updated. if the player is not in a vehicle, 
+	-- means he is walking, the player position is correct.
+	-- note: controlledVehicle can be nil
+	local nodeToCheck = (g_currentMission.controlledVehicle or {}).rootNode or player.rootNode;
+
+	-- the current player or vehicle (with player) position in the map (in meters and in realation to the center)
+	local player_x, player_y, player_z = getTranslation(nodeToCheck);
+
+	-- center to the player (for our calculations)
+	local x = hotspotPositionX - player_x;
+	local z = hotspotPositionZ - player_z;
+
+	-- from player to hotspot where the message comes
+	local distance = math.floor(math.sqrt((x * x) + (z * z)));
+	local degrees = math.floor(((math.atan2(z, x) * 180 / math.pi + 90) + 0.5) % 360);
+
+	local idx = math.floor(((degrees + 45 / 2) / 45)) % 8 + 1;
+	--local directions = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"};
+	local directions = StringUtil.splitString(",", g_i18n:getText("DIRECTIONS") or "");
+
+	-- the field on the farmland
+	local field = getFieldByFarmlandId(farmlandId);
+	local fieldName = (field and field.mapHotspot and field.mapHotspot.fullViewName or "n/a");
+
+	-- return all the funny stuff
+	return { direction = directions[idx], degrees = degrees, distance = distance, field = fieldName };
+end
+
 -- displays the message as ingame notification every 30s
 function mod:displayAlert(key)
 	-- check alerter for the given key is running or not
@@ -588,8 +694,13 @@ function mod:displayAlert(key)
 
 			if (state == "running") then
 				if (item ~= nil) then
-					trace(item.message);
-					g_currentMission:addIngameNotification(FSBaseMission.INGAME_NOTIFICATION_CRITICAL, item.message);
+					-- inject position info or detailed position info (depends on modDesc.xml) and all the funny stuff
+					local message = formatString(item.message, { positionInfo = g_i18n:getText("POSITION_INFO"), positionInfoDetails = g_i18n:getText("POSITION_INFO_DETAILS") });
+					message = formatString(message, getPositionInfo(item.hotspotPositionX, item.hotspotPositionZ, item.farmlandId));
+
+					-- show the message
+					trace(message);
+					g_currentMission:addIngameNotification(FSBaseMission.INGAME_NOTIFICATION_CRITICAL, message);
 				end
 			else
 				trace(string.format("alerter for key '%s' is outdated", key));
