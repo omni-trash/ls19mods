@@ -625,7 +625,7 @@ local function getPositionInfo(hotspotPositionX, hotspotPositionZ, farmlandId)
 	= positions (also in meters) =
 
 	            N
-	           -y
+	           -z
 	            |
 	            |
 	            |
@@ -633,12 +633,14 @@ local function getPositionInfo(hotspotPositionX, hotspotPositionZ, farmlandId)
 	            | 0,0 center
 	            |
 	            |
-	           +y
+	           +z
 	            S
 
-	note:
-	for the unit circle the y-axis is positive on upper and negative on lower.
-	we have to know that for the algorithm like atan2.
+	note: for the unit circle the y-axis is positive on upper and negative on lower.
+	      we have to know that for the algorithm like atan2.
+
+	note: dont be confused of y-axis and z-axis. the map is here the 2D bird view
+	      of the coordinate system (see getFillInfoFromPalletModule).
 	]]
 
 	-- ok thats yourself
