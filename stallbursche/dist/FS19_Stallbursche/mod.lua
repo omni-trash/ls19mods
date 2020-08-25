@@ -624,17 +624,17 @@ local function getPositionInfo(hotspotPositionX, hotspotPositionZ, farmlandId)
 
 	= positions (also in meters) =
 
-	   	        N
+	            N
 	           -y
-	   	   	   	|
-	   	   	   	|
-	   	   	   	|
+	            |
+	            |
+				|
 	W  -x ------+------- +x E
-	   	   	   	| 0,0 center
-	   	   	   	|
-	   	   	   	|
-	   	   	   +y
-	   	   	   	S
+	            | 0,0 center
+	            |
+	            |
+	           +y
+	            S
 
 	note:
 	for the unit circle the y-axis is positive on upper and negative on lower.
