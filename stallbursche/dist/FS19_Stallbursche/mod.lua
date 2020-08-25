@@ -55,7 +55,7 @@ local function trace(message)
 	print(string.format("@%s [%s]: %s", mod.name, getDate("%H:%M:%S"), message));
 end
 
--- format the string, formatString("{key1} {key2}!", {key1 = "Hello", key2 = "World}") => "Hello World!"
+-- format the string, formatString("{key1} {key2}!", {key1 = "Hello", key2 = "World"}) => "Hello World!"
 local function formatString(format, args)
 	local str = tostring(format or "");
 
@@ -624,17 +624,17 @@ local function getPositionInfo(hotspotPositionX, hotspotPositionZ, farmlandId)
 
 	= positions (also in meters) =
 
-				N
-			   -y
-				|
-				|
-				|
+	   	        N
+	           -y
+	   	   	   	|
+	   	   	   	|
+	   	   	   	|
 	W  -x ------+------- +x E
-				| 0,0 center
-				|
-				|
-			   +y
-				S
+	   	   	   	| 0,0 center
+	   	   	   	|
+	   	   	   	|
+	   	   	   +y
+	   	   	   	S
 
 	note:
 	for the unit circle the y-axis is positive on upper and negative on lower.
