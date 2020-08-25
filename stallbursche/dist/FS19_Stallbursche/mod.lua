@@ -628,7 +628,7 @@ local function getPositionInfo(hotspotPositionX, hotspotPositionZ, farmlandId)
 	           -y
 	            |
 	            |
-				|
+	            |
 	W  -x ------+------- +x E
 	            | 0,0 center
 	            |
