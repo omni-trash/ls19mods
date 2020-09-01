@@ -1,6 +1,7 @@
-# [LS19 MODS](https://github.com/omni-trash/ls19mods)
+# LS19 MODS
 Landwirtschafts-Simulator 19 Mods
 
+[ls19mods on github](https://github.com/omni-trash/ls19mods)
 
 Die Mods müssen in den mods-Ordner vom Farming Simulator 19 abgelegt werden, also unter:
 
@@ -18,7 +19,7 @@ Wenn ihr nicht die Datei sondern den Ordner nehmt, dann könnt ihr dort auch die
 
 ![Screenshot](./modsfolder.jpg)
 
-Eine Dokumentation zum Scripting findet ihr auf https://gdn.giants-software.com/documentation.php, wer sich dafür interessiert.
+Eine Dokumentation zum Scripting findet ihr auf [https://gdn.giants-software.com/documentation.php](https://gdn.giants-software.com/documentation.php), wer sich dafür interessiert.
 
 Denkt daran die Mods zu aktivieren.
 
