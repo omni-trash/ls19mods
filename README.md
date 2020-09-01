@@ -19,7 +19,7 @@ Wenn ihr nicht die Datei sondern den Ordner nehmt, dann könnt ihr dort auch die
 
 ![Screenshot](./modsfolder.jpg)
 
-Eine Dokumentation zum Scripting findet ihr auf [https://gdn.giants-software.com/documentation.php](https://gdn.giants-software.com/documentation.php), wer sich dafür interessiert.
+Eine Dokumentation zum Scripting findet ihr auf [GIANTS Developer Network](https://gdn.giants-software.com/documentation.php), wer sich dafür interessiert.
 
 Denkt daran die Mods zu aktivieren.
 
