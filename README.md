@@ -1,6 +1,8 @@
 # LS19 MODS
 Landwirtschafts-Simulator 19 Mods
 
+https://github.com/omni-trash/ls19mods
+
 Die Mods müssen in den mods-Ordner vom Farming Simulator 19 abgelegt werden, also unter:
 
 ```
