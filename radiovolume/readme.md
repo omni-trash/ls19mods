@@ -2,7 +2,7 @@
 
 Version 1.21.5.30
 
-<img src="./dist/FS19_RadioVolume/mod.png" height="64" width="64" title="Note [Vector Emoji by Vincent Le Moign]" />
+<img src="./dist/FS19_RadioVolume/mod.png" height="64" width="64" title="Musiknote [Vector Emoji by Vincent Le Moign]" />
 
 Die Lautstärke vom Radio einstellen.
 
