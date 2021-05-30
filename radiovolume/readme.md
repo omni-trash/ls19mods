@@ -4,7 +4,7 @@ Version 1.21.5.30
 
 <img src="./dist/FS19_RadioVolume/mod.png" height="64" width="64" title="Uhr [Vector Emoji by Vincent Le Moign]" />
 
-Die Lautstärke vom Radio einsellen.
+Die Lautstärke vom Radio einstellen.
 
 | Lauter | Leiser |
 | ------ | ------ |
