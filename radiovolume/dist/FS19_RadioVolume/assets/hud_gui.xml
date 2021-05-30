@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<GUI>
+	<GuiElement type="bitmap" profile="FS19_RadioVolume_hud_panel">
+		<GuiElement type="boxLayout" profile="FS19_RadioVolume_hud_box">
+			<GuiElement type="text" profile="FS19_RadioVolume_hud_textChannel" text="Channel" id="textChannel"/>
+			<GuiElement type="text" profile="FS19_RadioVolume_hud_textTitle" text="Disclaimer" id="textTitle"/>
+			<GuiElement type="text" profile="FS19_RadioVolume_hud_textDisclaimer" text="Disclaimer" id="textDisclaimer"/>
+			<GuiElement type="text" profile="FS19_RadioVolume_hud_textVolume" text="Volume 80%" id="textVolume"/>
+		</GuiElement>
+
+		<GuiElement type="bitmap" profile="FS19_RadioVolume_hud_progressBar">
+			<GuiElement type="bitmap" profile="FS19_RadioVolume_hud_currentValue" id="currentValue" />
+		</GuiElement>
+	</GuiElement>
+</GUI>

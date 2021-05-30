@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<modDesc descVersion="40">
+	<author>omni-trash</author>
+    <version>1.21.5.30</version>
+    <title>
+        <de>Radio Volume</de>
+    </title>
+    <description>
+	<de><![CDATA[Lautstärke vom Radio einstellen.]]></de>
+    </description>
+	<!--
+	icon from  : https://icon-icons.com/de/pack/780-Free-Vector-Emoji/1465
+	created by : Vincent Le Moign
+	license    : https://creativecommons.org/licenses/by/4.0/
+	-->
+    <iconFilename>mod.png</iconFilename>
+    <multiplayer supported="true"/>
+	<extraSourceFiles>	
+		<sourceFile filename="mod.lua" /> 
+	</extraSourceFiles>
+	
+	<l10n>
+		<text name="input_RADIO_VOLUME_UP">
+			<de>Radio lauter stellen</de>
+			<en>Radio turn up</en>
+		</text>
+		<text name="input_RADIO_VOLUME_DOWN">
+			<de>Radio leiser stellen</de>
+			<en>Radio turn down</en>
+		</text>
+	</l10n>
+
+	<actions>
+		<action name="RADIO_VOLUME_UP" />
+		<action name="RADIO_VOLUME_DOWN" />
+	</actions>	
+
+	<inputBinding>
+		<actionBinding action="RADIO_VOLUME_UP">
+			<binding device="KB_MOUSE_DEFAULT" input="KEY_KP_plus" />
+		</actionBinding>
+		<actionBinding action="RADIO_VOLUME_DOWN">
+			<binding device="KB_MOUSE_DEFAULT" input="KEY_KP_minus" />
+		</actionBinding>
+	</inputBinding>
+</modDesc>

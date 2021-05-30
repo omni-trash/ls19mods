@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<modDesc descVersion="40">
+	<author>omni-trash</author>
+    <version>1.21.5.30</version>
+    <title>
+        <de>Augmented Reality</de>
+    </title>
+    <description>
+	<de><![CDATA[Informationen zu Felder und Tierstallungen anzeigen.]]></de>
+    </description>
+	<!--
+	icon from  : https://icon-icons.com/de/pack/780-Free-Vector-Emoji/1465
+	created by : Vincent Le Moign
+	license    : https://creativecommons.org/licenses/by/4.0/
+	-->
+    <iconFilename>mod.png</iconFilename>
+    <multiplayer supported="true"/>
+	<extraSourceFiles>	
+		<sourceFile filename="mod.lua" /> 
+	</extraSourceFiles>
+	
+	<l10n>
+		<text name="input_AUGMENTED_REALITY_TOGGLE">
+			<de>Augmented Reality ein/aus</de>
+			<en>Augmented Reality on/off</en>
+		</text>
+	</l10n>
+
+	<actions>
+		<action name="AUGMENTED_REALITY_TOGGLE" />
+	</actions>	
+
+	<inputBinding>
+		<actionBinding action="AUGMENTED_REALITY_TOGGLE">
+			<binding device="KB_MOUSE_DEFAULT" input="KEY_KP_multiply" />
+		</actionBinding>
+	</inputBinding>
+</modDesc>

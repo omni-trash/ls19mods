@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<GUIProfiles>
+	<Presets>
+		<Preset name="colorAccent" value="0.991 0.3865 0.01 1"/>
+
+		<Preset name="textColorHeading" value="$preset_colorAccent"/>
+		<Preset name="textColorSubHeading" value="0.7 0.7 0.7 1"/>
+		<Preset name="textColorVolume" value="0.9 0.9 0.9 1"/>
+	</Presets>
+
+	<Profile name="FS19_RadioVolume_hud_panel" extends="dialogBg" with="lightFrame">
+		<Value name="screenAlign" value="middleRight"/>
+		<Value name="positionOrigin" value="bottomRight"/>
+		<Value name="position" value="-25px 0px"/>
+		<Value name="size" value="220px 164px"/>
+	</Profile>
+
+	<Profile name="FS19_RadioVolume_hud_box">
+		<Value name="screenAlign" value="topLeft"/>
+		<Value name="positionOrigin" value="topLeft"/>
+		<Value name="flowDirection" value="vertical"/>
+		<Value name="position" value="10px -10px"/>
+		<Value name="size" value="200px 140px"/>
+	</Profile>
+
+	<Profile name="FS19_RadioVolume_hud_textDefault" extends="textDefault">
+		<Value name="textMaxWidth" value="200px"/>
+		<Value name="textBold" value="false"/>
+		<Value name="textAlignment" value="left"/>
+		<Value name="textVerticalAlignment" value="top"/>
+	</Profile>
+
+	<Profile name="FS19_RadioVolume_hud_textChannel" extends="FS19_RadioVolume_hud_textDefault">
+		<Value name="textColor" value="$preset_textColorHeading"/>
+		<Value name="textSize" value="17px"/>
+		<Value name="size" value="200px 24px"/>
+	</Profile>
+
+	<Profile name="FS19_RadioVolume_hud_textTitle" extends="FS19_RadioVolume_hud_textDefault">
+		<Value name="textColor" value="$preset_textColorSubHeading"/>
+		<Value name="textSize" value="14px"/>
+		<Value name="size" value="200px 72px"/>
+		<Value name="textMaxWidth" value=""/>
+		<Value name="textVerticalAlignment" value="top"/>
+		<Value name="textWrapWidth" value="190px"/>
+		<Value name="textMaxNumLines" value="4"/>
+	</Profile>
+	
+	<Profile name="FS19_RadioVolume_hud_textDisclaimer" extends="FS19_RadioVolume_hud_textDefault">
+		<Value name="textColor" value="$preset_textColorSubHeading"/>
+		<Value name="textSize" value="14px"/>
+		<Value name="size" value="200px 18px"/>
+	</Profile>
+
+	<Profile name="FS19_RadioVolume_hud_textVolume" extends="FS19_RadioVolume_hud_textDefault">
+		<Value name="textColor" value="$preset_textColorVolume"/>
+		<Value name="textSize" value="22px"/>
+		<Value name="size" value="200px 26px"/>
+	</Profile>
+
+	<Profile name="FS19_RadioVolume_hud_progressBar" extends="emptyPanel">
+		<Value name="screenAlign" value="bottomLeft"/>
+		<Value name="positionOrigin" value="bottomLeft"/>
+		<Value name="position" value="0px 0px"/>
+		<Value name="size" value="220px 4px"/>
+	</Profile>
+
+	<Profile name="FS19_RadioVolume_hud_currentValue" extends="emptyPanel">
+		<Value name="size" value="90px 4px"/>
+		<Value name="imageColor" value="$preset_colorAccent"/>
+	</Profile>
+</GUIProfiles>

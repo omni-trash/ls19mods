@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<GUIProfiles>
+	<Presets>
+		<Preset name="colorAccent" value="0.991 0.3865 0.01 1"/>
+		<Preset name="textColorHeading" value="$preset_colorAccent"/>
+		<Preset name="textColorSubHeading" value="0.7 0.7 0.7 1"/>
+		<Preset name="textColorVolume" value="0.9 0.9 0.9 1"/>
+	</Presets>
+
+	<Profile name="FS19_AR_hud_panel_base" extends="dialogBg" with="lightFrame">
+		<Value name="screenAlign" value="middleCenter"/>
+		<Value name="positionOrigin" value="middleCenter"/>
+		<Value name="fadeInTime" value="1"/>
+		<Value name="size" value="220px 116px"/>
+	</Profile>
+
+	<Profile name="FS19_AR_hud_panel_S1" extends="FS19_AR_hud_panel_base">
+		<Value name="position" value="-250px 250px"/>
+	</Profile>
+	
+	<Profile name="FS19_AR_hud_panel_S2" extends="FS19_AR_hud_panel_base">
+		<Value name="position" value="0px 250px"/>
+	</Profile>
+	
+	<Profile name="FS19_AR_hud_panel_S3" extends="FS19_AR_hud_panel_base">
+		<Value name="position" value="250px 250px"/>
+	</Profile>
+	
+	<Profile name="FS19_AR_hud_panel_S4" extends="FS19_AR_hud_panel_base">
+		<Value name="position" value="-250px 0px"/>
+	</Profile>
+	
+	<Profile name="FS19_AR_hud_panel_S5" extends="FS19_AR_hud_panel_base">
+		<Value name="position" value="0px 0px"/>
+	</Profile>
+	
+	<Profile name="FS19_AR_hud_panel_S6" extends="FS19_AR_hud_panel_base">
+		<Value name="position" value="250px 0px"/>
+	</Profile>
+	
+	<Profile name="FS19_AR_hud_panel_S7" extends="FS19_AR_hud_panel_base">
+		<Value name="position" value="-250px -250px"/>
+	</Profile>
+	
+	<Profile name="FS19_AR_hud_panel_S8" extends="FS19_AR_hud_panel_base">
+		<Value name="position" value="0px -250px"/>
+	</Profile>
+	
+	<Profile name="FS19_AR_hud_panel_S9" extends="FS19_AR_hud_panel_base">
+		<Value name="position" value="250px -250px"/>
+	</Profile>
+
+	<Profile name="FS19_AR_hud_box">
+		<Value name="screenAlign" value="topLeft"/>
+		<Value name="positionOrigin" value="topLeft"/>
+		<Value name="flowDirection" value="vertical"/>
+		<Value name="position" value="10px -10px"/>
+		<Value name="size" value="200px 96px"/>
+	</Profile>
+
+	<Profile name="FS19_AR_hud_textDefault" extends="textDefault">
+		<Value name="textMaxWidth" value="200px"/>
+		<Value name="textBold" value="false"/>
+		<Value name="textAlignment" value="left"/>
+		<Value name="textVerticalAlignment" value="top"/>
+	</Profile>
+
+	<Profile name="FS19_AR_hud_title" extends="FS19_AR_hud_textDefault">
+		<Value name="textUpperCase" value="true"/>
+		<Value name="textColor" value="$preset_textColorHeading"/>
+		<Value name="textSize" value="17px"/>
+		<Value name="size" value="200px 24px"/>
+	</Profile>
+
+	<Profile name="FS19_AR_hud_text" extends="FS19_AR_hud_textDefault">
+		<Value name="textColor" value="$preset_textColorSubHeading"/>
+		<Value name="textSize" value="14px"/>
+		<Value name="size" value="200px 18px"/>
+	</Profile>
+</GUIProfiles>

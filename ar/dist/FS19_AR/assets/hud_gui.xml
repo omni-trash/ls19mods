@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<GUI>
+	<GuiElement type="bitmap" profile="FS19_AR_hud_panel_S1" id="panel_S1">
+		<GuiElement type="boxLayout" profile="FS19_AR_hud_box">
+			<GuiElement type="text" profile="FS19_AR_hud_title" text="title" id="title_S1"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text1" id="text1_S1"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text2" id="text2_S1"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text3" id="text3_S1"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text4" id="text4_S1"/>
+		</GuiElement>
+	</GuiElement>
+	
+	<GuiElement type="bitmap" profile="FS19_AR_hud_panel_S2" id="panel_S2">
+		<GuiElement type="boxLayout" profile="FS19_AR_hud_box">
+			<GuiElement type="text" profile="FS19_AR_hud_title" text="title" id="title_S2"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text1" id="text1_S2"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text2" id="text2_S2"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text3" id="text3_S2"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text4" id="text4_S2"/>
+		</GuiElement>
+	</GuiElement>
+	
+	<GuiElement type="bitmap" profile="FS19_AR_hud_panel_S3" id="panel_S3">
+		<GuiElement type="boxLayout" profile="FS19_AR_hud_box">
+			<GuiElement type="text" profile="FS19_AR_hud_title" text="title" id="title_S3"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text1" id="text1_S3"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text2" id="text2_S3"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text3" id="text3_S3"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text4" id="text4_S3"/>
+		</GuiElement>
+	</GuiElement>
+	
+	<GuiElement type="bitmap" profile="FS19_AR_hud_panel_S4" id="panel_S4">
+		<GuiElement type="boxLayout" profile="FS19_AR_hud_box">
+			<GuiElement type="text" profile="FS19_AR_hud_title" text="title" id="title_S4"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text1" id="text1_S4"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text2" id="text2_S4"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text3" id="text3_S4"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text4" id="text4_S4"/>
+		</GuiElement>
+	</GuiElement>
+	
+	<GuiElement type="bitmap" profile="FS19_AR_hud_panel_S5" id="panel_S5">
+		<GuiElement type="boxLayout" profile="FS19_AR_hud_box">
+			<GuiElement type="text" profile="FS19_AR_hud_title" text="title" id="title_S5"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text1" id="text1_S5"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text2" id="text2_S5"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text3" id="text3_S5"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text4" id="text4_S5"/>
+		</GuiElement>
+	</GuiElement>
+	
+	<GuiElement type="bitmap" profile="FS19_AR_hud_panel_S6" id="panel_S6">
+		<GuiElement type="boxLayout" profile="FS19_AR_hud_box">
+			<GuiElement type="text" profile="FS19_AR_hud_title" text="title" id="title_S6"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text1" id="text1_S6"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text2" id="text2_S6"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text3" id="text3_S6"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text4" id="text4_S6"/>
+		</GuiElement>
+	</GuiElement>
+	
+	<GuiElement type="bitmap" profile="FS19_AR_hud_panel_S7" id="panel_S7">
+		<GuiElement type="boxLayout" profile="FS19_AR_hud_box">
+			<GuiElement type="text" profile="FS19_AR_hud_title" text="title" id="title_S7"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text1" id="text1_S7"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text2" id="text2_S7"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text3" id="text3_S7"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text4" id="text4_S7"/>
+		</GuiElement>
+	</GuiElement>
+	
+	<GuiElement type="bitmap" profile="FS19_AR_hud_panel_S8" id="panel_S8">
+		<GuiElement type="boxLayout" profile="FS19_AR_hud_box">
+			<GuiElement type="text" profile="FS19_AR_hud_title" text="title" id="title_S8"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text1" id="text1_S8"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text2" id="text2_S8"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text3" id="text3_S8"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text4" id="text4_S8"/>
+		</GuiElement>
+	</GuiElement>
+	
+	<GuiElement type="bitmap" profile="FS19_AR_hud_panel_S9" id="panel_S9">
+		<GuiElement type="boxLayout" profile="FS19_AR_hud_box">
+			<GuiElement type="text" profile="FS19_AR_hud_title" text="title" id="title_S9"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text1" id="text1_S9"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text2" id="text2_S9"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text3" id="text3_S9"/>
+			<GuiElement type="text" profile="FS19_AR_hud_text"  text="text4" id="text4_S9"/>
+		</GuiElement>
+	</GuiElement>
+</GUI>
