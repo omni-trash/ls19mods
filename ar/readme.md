@@ -2,7 +2,7 @@
 
 Version 1.21.5.30
 
-<img src="./dist/FS19_AR/mod.png" height="64" width="64" title="Uhr [Vector Emoji by Vincent Le Moign]" />
+<img src="./dist/FS19_AR/mod.png" height="64" width="64" title="Brille [Vector Emoji by Vincent Le Moign]" />
 
 Zeigt Informationen zu Felder und Tierstallungen an.
 
